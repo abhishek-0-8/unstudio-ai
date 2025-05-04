@@ -83,22 +83,35 @@ class _SelfieCaptureScreenState extends State<SelfieCaptureScreen> {
   // Function to capture a selfie
   void _captureSelfie() async {
     try {
-      // Ensuring the camera is initialized before capturing
       await _initializeControllerFuture;
-
-      // Capturing the photo and adding it to the list
       final photo = await _controller.takePicture();
+
       setState(() {
-        _capturedSelfies.add(photo);
-        _currentSelfieIndex++;
+        if (_currentSelfieIndex < _capturedSelfies.length) {
+          _capturedSelfies[_currentSelfieIndex] = photo;
+        } else {
+          _capturedSelfies.add(photo);
+          _currentSelfieIndex++;
+        }
       });
 
-      // If the user has captured all selfies, navigate to the review page
-      if (_currentSelfieIndex == _totalSelfies) {
-        Navigator.push(
+      // Check if it's a retake (i.e., retakeIndex is not null)
+      if (widget.retakeIndex != null) {
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ReviewPage(selfies: _capturedSelfies, cameras: _capturedSelfies,),
+            builder: (_) => ReviewPage(selfies: _capturedSelfies, cameras: widget.cameras),
+          ),
+        );
+        return;
+      }
+
+      // Proceed to review if all selfies are done
+      if (_currentSelfieIndex == _totalSelfies) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReviewPage(selfies: _capturedSelfies, cameras: widget.cameras),
           ),
         );
       }
@@ -108,6 +121,7 @@ class _SelfieCaptureScreenState extends State<SelfieCaptureScreen> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
