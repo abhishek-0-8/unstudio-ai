@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:unstudio/selfie_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:unstudio/ImageCapture/controller/image_capture_controller.dart';
+import 'home/controllers/garment_controller.dart';
+import 'ImageCapture/view/selfie_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,11 +19,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Selfie Capture',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.deepOrange),
-      home: SelfieCaptureScreen(cameras: cameras),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ImageCaptureController(cameras: cameras),
+        ),
+        ChangeNotifierProvider(create: (_) => GarmentController()),
+      ],
+      child: MaterialApp(
+        title: 'Selfie Capture',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primarySwatch: Colors.deepOrange),
+        home: SelfieCaptureScreen(),
+        // To test garment UI, use:
+        // home: HomeScreen(),
+      ),
     );
   }
 }
